@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++-12 build active file",
+            "command": "/usr/bin/g++-12",  // Path to your g++-12 compiler
+            "args": [
+                "-std=c++20",                  // Use C++20 standard
+                "-fdiagnostics-color=always",  // Enable colored diagnostics
+                "-g",                          // Include debugging information
+                "-fsanitize=address",          // Enable AddressSanitizer
+                "${file}",                     // Compile the currently active file
+                "-o",                          // Specify output file
+                "${fileDirname}/${fileBasenameNoExtension}"  // Output file with the same name
+            ],
+            "options": {
+                "cwd": "${fileDirname}"  // Set working directory to the file's directory
+            },
+            "problemMatcher": [
+                "$gcc"  // Use GCC problem matcher for diagnostics
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true  // Set this task as the default build task
+            },
+            "detail": "Build task for g++-12 with C++20"
+        }
+    ]
+}

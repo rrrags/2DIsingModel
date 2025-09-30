@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "*.cpp": "cpp",                  // Ensure .cpp files are treated as C++ files
+        "*.h": "cpp",                    // Treat .h files as C++ header files
+        "*.hpp": "cpp"                   // Treat .hpp files as C++ header files
+    },
+    "editor.defaultFormatter": "ms-vscode.cpptools",  // Use the C++ extension for formatting
+    "editor.formatOnSave": true,                         // Format code automatically when saving
+    "C_Cpp.clang_format_fallbackStyle": "none", // Ensures .clang-format is used
+    "C_Cpp.default.compilerPath": "/usr/bin/g++-12",    // Path to g++-12
+    "C_Cpp.default.cppStandard": "c++20",               // Default to C++20 standard
+    "C_Cpp.default.cStandard": "c17",                   // Default to C17 standard for C
+    "C_Cpp.default.includePath": [
+        "/usr/include",
+        "/usr/local/include"
+    ],
+    "[cpp]": {      
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    }
+}

@@ -1,0 +1,14 @@
+Checks: >
+  cppcoreguidelines-*,
+  bugprone-unused-raii,
+  clang-analyzer-*,
+  clang-diagnostic-*,
+  performance-*,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-avoid-do-while
+HeaderFilterRegex: '.*'
+WarningsAsErrors: ''
+FormatStyle: file
