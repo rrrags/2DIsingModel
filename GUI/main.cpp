@@ -3,7 +3,7 @@
 #include <QQmlContext>
 #include <QQuickWindow>
 
-#include "gridModel.h"
+#include "latticeModel.hpp"
 
 // #include "gameoflifemodel.h"
 
@@ -12,15 +12,15 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
-    // Register GridModel type as uncreatable in QML
-    qmlRegisterUncreatableType<Grid>("GOL", 1, 0, "GOLGrid", "Cannot create Grid in QML");
-    //qDebug() << QMetaEnum::fromType<Grid::State>().valueToKey(Grid::ALIVE);
-    //qDebug() << QMetaEnum::fromType<Grid::State>().valueToKey(Grid::DEAD);
+    qmlRegisterUncreatableType<Simulator>("simulator",
+                                          1,
+                                          0,
+                                          "simulator",
+                                          "Cannot create Simulator in QML");
 
-    GridModel gridModel;
+    LatticeModel latticeModel;
 
-    // Expose instance as context property
-    engine.rootContext()->setContextProperty("gridModel", &gridModel);
+    engine.rootContext()->setContextProperty("latticeModel", &latticeModel);
 
     engine.load(QUrl(QStringLiteral("qrc:/Main.qml")));
 

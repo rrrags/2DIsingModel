@@ -13,7 +13,7 @@ ColumnLayout{
         Layout.preferredHeight: 40
         Layout.preferredWidth: 250
         font.pixelSize: 18
-        placeholderText: "Enter the dimension of the grid"
+        placeholderText: "Enter the dimension of the lattice"
         Rectangle {
             anchors.fill: parent
             color: "transparent"
@@ -28,7 +28,7 @@ ColumnLayout{
         text: "Begin"
         onClicked:{
             showPilot = false
-            gridModel.setGridSize(dimensionTextField.text)
+            latticeModel.setSimulatorSize(dimensionTextField.text)
         }
     }
 

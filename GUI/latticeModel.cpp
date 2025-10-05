@@ -1,107 +1,85 @@
+#include "latticeModel.hpp"
 #include <QTimer>
-#include "lattice.hpp"
+#include <QtConcurrent>
 
-GridModel::GridModel(QObject *parent)
+LatticeModel::LatticeModel(QObject *parent)
     : QAbstractListModel(parent)
-    , m_grid{new Grid{this}}
+    , m_simulator{new Simulator{}}
 {
-    connect(m_grid, &Grid::gridChanged, this, &GridModel::onGridChanged);
-    connect(m_grid, &Grid::newGrid, this, &GridModel::onNewGrid);
     m_timer = new QTimer(this);
 }
 
-int GridModel::rowCount(const QModelIndex &parent) const
+int LatticeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-    return m_cells.count();
+    return m_spins.count();
 }
 
-QVariant GridModel::data(const QModelIndex &index, int role) const
+QVariant LatticeModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_cells.count())
+    if (!index.isValid() || index.row() >= m_spins.count())
         return QVariant();
 
-    const Grid::State &cell = m_cells.at(index.row());
+    const Simulator::Spin &spin = m_spins.at(index.row());
 
     switch (role) {
-    case Cell:
-        return static_cast<int>(cell);
+    case SPIN:
+        return static_cast<int>(spin);
     default:
         return QVariant();
     }
 }
 
-QHash<int, QByteArray> GridModel::roleNames() const
+QHash<int, QByteArray> LatticeModel::roleNames() const
 {
-    return {{Cell, "cell"}};
+    return {{SPIN, "spin"}};
 }
 
-void GridModel::setGridSize(int N)
+void LatticeModel::initializeSimulator(int a_latticeSize,
+                                       bool a_randomSpins,
+                                       double a_temperature,
+                                       double a_J)
 {
-    m_timer->stop();
-    m_grid->setGridSize(static_cast<std::size_t>(N));
+    m_simulator->initializeSimulator(a_latticeSize, a_randomSpins, a_temperature, a_J);
+    m_latticeSize = a_latticeSize;
 }
 
-void GridModel::makeCellAlive(const int index)
+void LatticeModel::beginSimulation()
 {
-    const auto [row, column] = vectorIndexToGridIndex(index);
-    m_grid->makeCellAlive(row, column);
-}
-
-void GridModel::makeCellDead(const int index)
-{
-    const auto [row, column] = vectorIndexToGridIndex(index);
-    m_grid->makeCellDead(row, column);
-}
-
-void GridModel::beginSimulation()
-{
-    connect(m_timer, &QTimer::timeout, this, [=]() {
-        if (m_grid->getNumberOfAliveCells() == 0) {
-            m_timer->stop();
-        }
-        m_grid->nextGeneration();
+    QFuture<void> future = QtConcurrent::run([this]() { m_simulator->runSimulation(); });
+    connect(m_timer, &QTimer::timeout, this, [this]() {
+        if (m_simulator->isRunning()) {
+            latticeChanged(m_simulator->getLattice());
+        };
     });
     m_timer->start(1000);
 }
 
-void GridModel::pauseSimulation()
+void LatticeModel::pauseSimulation()
 {
-    m_timer->stop();
+    m_simulator->pauseSimulation();
 }
 
-void GridModel::onNewGrid(const std::vector<std::vector<Grid::State> > &grid)
+void LatticeModel::continueSimulation()
 {
-    beginResetModel();
-    m_cells.clear();
-    for (const auto &row : grid) {
-        for (const auto &cell : row) {
-            m_cells.emplace_back(cell);
+    QFuture<void> future = QtConcurrent::run([this]() { m_simulator->runSimulation(); });
+}
+
+void LatticeModel::latticeChanged(const std::vector<std::vector<Simulator::Spin>> &a_lattice)
+{
+    static std::vector<std::vector<Simulator::Spin>> previousLattice{a_lattice};
+
+    for (int i = 0; i < m_latticeSize; ++i) {
+        for (int j = 0; j < m_latticeSize; ++j) {
+            if (previousLattice.at(i).at(j) != a_lattice.at(i).at(j)) {
+                int indexValue = Simulator::latticeIndexToVectorIndex(i, j, m_latticeSize);
+                m_spins[indexValue] = m_spins[indexValue] == Simulator::Spin::UP
+                                          ? Simulator::Spin::UP
+                                          : Simulator::Spin::DOWN;
+                QModelIndex idx = index(indexValue);
+                emit dataChanged(idx, idx, {SPIN});
+            }
         }
     }
-    endResetModel();
-}
-
-void GridModel::onGridChanged(const std::vector<std::pair<size_t, size_t> > &cells)
-{
-    for (const auto &[row, column] : cells) {
-        int indexValue = gridIndexToVectorIndex(row, column);
-        m_cells[indexValue] = m_cells[indexValue] == Grid::State::ALIVE ? Grid::State::DEAD
-                                                                        : Grid::State::ALIVE;
-        QModelIndex idx = index(indexValue);
-        emit dataChanged(idx, idx, {Cell});
-    }
-}
-
-std::size_t GridModel::gridIndexToVectorIndex(size_t row, size_t column) const
-{
-    return m_grid->gridSize() * row + column;
-}
-
-std::pair<std::size_t, std::size_t> GridModel::vectorIndexToGridIndex(size_t index) const
-{
-    const std::size_t row = std::floor(index / m_grid->gridSize());
-    const std::size_t column = index % m_grid->gridSize();
-    return std::pair(row, column);
 }

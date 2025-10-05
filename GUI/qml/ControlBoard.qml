@@ -6,32 +6,32 @@ Rectangle{
     anchors.fill: parent
     property bool isRunning: false
     Rectangle{
-        id: gridRectangle
+        id: latticeRectangle
         anchors.centerIn: parent
         width: 800
         height: 600
         clip: true
-        InteractableGrid{
+        InteractableSimulator{
             anchors.fill: parent
-            //width: Math.min(gridRectangle.width, 800)
-            //height: Math.min(gridRectangle.height, 600)
+            //width: Math.min(latticeRectangle.width, 800)
+            //height: Math.min(latticeRectangle.height, 600)
             //anchors.centerIn: parent
         }
     }
     RowLayout{
-        anchors.top: gridRectangle.bottom
-        anchors.left: gridRectangle.left
+        anchors.top: latticeRectangle.bottom
+        anchors.left: latticeRectangle.left
         Button{
             text: isRunning ? "Pause simulation" : "Begin simulation"
             width: 100
             height: 80
             onClicked:{
-                isRunning ? gridModel.pauseSimulation() : gridModel.beginSimulation()
+                isRunning ? latticeModel.pauseSimulation() : latticeModel.beginSimulation()
                 isRunning = !isRunning
             }
         }
         Button{
-            text: "newGrid"
+            text: "newSimulator"
             onClicked:{
                 showPilot = true
             }

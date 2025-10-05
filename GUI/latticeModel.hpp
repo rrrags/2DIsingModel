@@ -2,40 +2,34 @@
 
 #include <QAbstractListModel>
 
-#include "grid.h"
+#include "simulator.hpp"
 #include <utility>
 
-class GridModel : public QAbstractListModel
+class LatticeModel : public QAbstractListModel
 {
     Q_OBJECT
-    Q_PROPERTY(Grid *grid MEMBER m_grid CONSTANT)
-  public:
-    enum Roles
-    {
-        Cell = Qt::UserRole + 1
-    };
+    Q_PROPERTY(Simulator *lattice MEMBER m_simulator CONSTANT)
+public:
+    enum Roles { SPIN = Qt::UserRole + 1 };
 
-    explicit GridModel(QObject *parent = nullptr);
+    explicit LatticeModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
+    void latticeChanged(const std::vector<std::vector<Simulator::Spin>> &lattice);
 
-    Q_INVOKABLE void setGridSize(int N);
-    Q_INVOKABLE void makeCellAlive(const int index);
-    Q_INVOKABLE void makeCellDead(const int index);
+    Q_INVOKABLE void initializeSimulator(int a_latticeSize,
+                                         bool a_randomSpins,
+                                         double a_temperature,
+                                         double a_J);
     Q_INVOKABLE void beginSimulation();
     Q_INVOKABLE void pauseSimulation();
-
-public slots:
-    void onNewGrid(const std::vector<std::vector<Grid::State>> &grid);
-    void onGridChanged(const std::vector<std::pair<std::size_t, std::size_t>> &cells);
+    Q_INVOKABLE void continueSimulation();
 
 private:
-    QList<Grid::State> m_cells;
-    Grid *m_grid{nullptr};
+    QList<Simulator::Spin> m_spins;
+    Simulator *m_simulator{nullptr};
     QTimer *m_timer{nullptr};
-
-    std::pair<std::size_t, std::size_t> vectorIndexToGridIndex(std::size_t index) const;
-    std::size_t gridIndexToVectorIndex(std::size_t row, std::size_t column) const;
+    int m_latticeSize{};
 };

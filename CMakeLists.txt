@@ -5,6 +5,9 @@ project(2DIsingModel)
 enable_testing()
 
 add_library(compile_features INTERFACE)
+add_library(qt_library INTERFACE)
+
+
 
 target_compile_features(compile_features INTERFACE cxx_std_20)
 
@@ -15,4 +18,3 @@ else()
 endif()
 
 add_subdirectory(GUI)
-add_subdirectory(Lattice)

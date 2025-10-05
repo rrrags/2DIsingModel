@@ -1,10 +1,10 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import GOL 1.0
+import simulator 1.0
 
 Item{
     property int cellSize: 10
-    property int gridSize: gridModel.grid.gridSize
+    property int latticeSize: latticeModel.lattice.latticeSize
     property real scaleFactor: 1.0
 
     Item {
@@ -31,19 +31,19 @@ Item{
         }
 
         // use TableView instead?
-        GridView {
-            id: grid
+        LatticeView {
+            id: lattice
             anchors.centerIn: parent
-            model: gridModel
-            width: cellSize * gridSize
-            height: cellSize * gridSize
+            model: latticeModel
+            width: cellSize * latticeSize
+            height: cellSize * latticeSize
             clip: true
             cellWidth: cellSize
             cellHeight: cellSize
             delegate: Rectangle {
                 width: cellSize
                 height: cellSize
-                color: model.cell ===  GOLGrid.DEAD ? "red" : "green"
+                color: model.cell ===  GOLLattice.DEAD ? "red" : "green"
                 border.color: "#444"
                 border.width: 0.5
 
@@ -53,9 +53,9 @@ Item{
                        onClicked: function(mouse){
                            if (mouse.button === Qt.LeftButton) {
                                //console.log("Clicked cell at index:", index)
-                               gridModel.makeCellAlive(index)
+                               latticeModel.makeCellAlive(index)
                            } else if (mouse.button === Qt.RightButton) {
-                               gridModel.makeCellDead(index)
+                               latticeModel.makeCellDead(index)
                            }
                        }
                    }

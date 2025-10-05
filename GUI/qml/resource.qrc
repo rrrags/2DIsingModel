@@ -3,6 +3,6 @@
         <file>Main.qml</file>
         <file>ControlBoard.qml</file>
         <file>Pilot.qml</file>
-        <file>InteractableGrid.qml</file>
+        <file>InteractableSimulator.qml</file>
     </qresource>
 </RCC>
